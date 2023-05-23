@@ -1,0 +1,186 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost
+  description: Generated server url
+paths:
+  /accounts:
+    post:
+      tags:
+      - accounts-controller
+      summary: Open Account Holder Account
+      operationId: openAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /accounts/{accountId}:
+    get:
+      tags:
+      - accounts-controller
+      summary: Get Account by Id
+      operationId: getAccount
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Certificate'
+    post:
+      tags:
+      - accounts-controller
+      summary: Add account user
+      operationId: addUser
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+    AccountHolder:
+      type: object
+      properties:
+        organization:
+          $ref: '#/components/schemas/Organization'
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+    Certificate:
+      type: object
+      properties:
+        certificateId:
+          type: string
+          format: uuid
+        issuanceDate:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - CANCELLED
+          - REDEEMED
+        EnergyType:
+          type: string
+          enum:
+          - ELECTRICITY
+          - GAS
+          - HEATING
+          - COOLING
+        owner:
+          $ref: '#/components/schemas/AccountHolder'
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionDevice'
+        volume:
+          type: integer
+          format: int64
+        unit:
+          type: string
+          enum:
+          - MEGA_WATT_HOUR
+          - GIGA_CALORIE
+          - CUBIC_METER
+    DeviceLicense:
+      type: object
+      properties:
+        issuanceDate:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        description:
+          type: string
+        issuingOrganization:
+          type: string
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    ProductionDevice:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - ELECTRICITY
+          - GAS
+          - HEATING
+          - COOLING
+        description:
+          type: string
+        fuelValency:
+          type: string
+          enum:
+          - MONO_FUEL
+          - MULTI_FUEL
+        fuelQuotas:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        licenses:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceLicense'

@@ -1,0 +1,10 @@
+server:
+  port: 9092
+spring:
+  liquibase:
+    enabled: false
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs

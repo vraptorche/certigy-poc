@@ -1,0 +1,158 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost
+  description: Generated server url
+paths:
+  /transactions:
+    post:
+      tags:
+      - transactions-controller
+      summary: Schedule transaction to issue certificate
+      operationId: scheduleTransaction
+      parameters:
+      - name: data
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/TransactionData'
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /transactions/{transactionId}:
+    get:
+      tags:
+      - transactions-controller
+      summary: Get transaction data
+      operationId: listTransactions
+      parameters:
+      - name: transactionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TransactionData'
+  /transactions/list/{accountId}:
+    get:
+      tags:
+      - transactions-controller
+      summary: Get account transactions
+      operationId: getTransaction
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionData'
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    DeviceLicense:
+      type: object
+      properties:
+        issuanceDate:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        description:
+          type: string
+        issuingOrganization:
+          type: string
+    ProductionDevice:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - ELECTRICITY
+          - GAS
+          - HEATING
+          - COOLING
+        description:
+          type: string
+        fuelValency:
+          type: string
+          enum:
+          - MONO_FUEL
+          - MULTI_FUEL
+        fuelQuotas:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        licenses:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceLicense'
+    TransactionData:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        periodType:
+          type: string
+          enum:
+          - HOURLY
+          - DAILY
+          - WEEKLY
+          - MONTHLY
+        account:
+          $ref: '#/components/schemas/Account'
+        devices:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionDevice'
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string

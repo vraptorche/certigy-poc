@@ -1,0 +1,25 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost
+  description: Generated server url
+paths:
+  /invoices/{accountId}:
+    post:
+      tags:
+      - invoices-controller
+      summary: Settle account fees
+      operationId: settleFees
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+components: {}

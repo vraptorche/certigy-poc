@@ -1,0 +1,239 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost
+  description: Generated server url
+paths:
+  /certificates/transfer/{certificateId}/to/{accountId}:
+    put:
+      tags:
+      - certificates-controller
+      summary: Transfer certificate to another account
+      operationId: transferCertificate
+      parameters:
+      - name: certificateId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /certificates/cancel/{certificateId}:
+    put:
+      tags:
+      - certificates-controller
+      summary: Cancel certificate
+      operationId: cancelCertificate
+      parameters:
+      - name: certificateId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /certificates:
+    post:
+      tags:
+      - certificates-controller
+      summary: Issue certificate
+      operationId: issueCertificate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Certificate'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /certificates/import:
+    post:
+      tags:
+      - certificates-controller
+      summary: Import certificate
+      operationId: importCertificate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Certificate'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /certificates/{certificateId}:
+    get:
+      tags:
+      - certificates-controller
+      summary: Get certificate by id
+      operationId: getCertificate
+      parameters:
+      - name: certificateId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Certificate'
+  /certificates/export/{certificateId}:
+    get:
+      tags:
+      - certificates-controller
+      summary: Export certificate
+      operationId: exportCertificate
+      parameters:
+      - name: certificateId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Certificate'
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    AccountHolder:
+      type: object
+      properties:
+        organization:
+          $ref: '#/components/schemas/Organization'
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+    Certificate:
+      type: object
+      properties:
+        certificateId:
+          type: string
+          format: uuid
+        issuanceDate:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - CANCELLED
+          - REDEEMED
+        EnergyType:
+          type: string
+          enum:
+          - ELECTRICITY
+          - GAS
+          - HEATING
+          - COOLING
+        owner:
+          $ref: '#/components/schemas/AccountHolder'
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionDevice'
+        volume:
+          type: integer
+          format: int64
+        unit:
+          type: string
+          enum:
+          - MEGA_WATT_HOUR
+          - GIGA_CALORIE
+          - CUBIC_METER
+    DeviceLicense:
+      type: object
+      properties:
+        issuanceDate:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        description:
+          type: string
+        issuingOrganization:
+          type: string
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    ProductionDevice:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - ELECTRICITY
+          - GAS
+          - HEATING
+          - COOLING
+        description:
+          type: string
+        fuelValency:
+          type: string
+          enum:
+          - MONO_FUEL
+          - MULTI_FUEL
+        fuelQuotas:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        licenses:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceLicense'
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
